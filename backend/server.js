@@ -4,12 +4,14 @@ const dotenv = require('dotenv');
 const userRoutes = require('./routes/user');
 const bookRoutes = require('./routes/book');
 const path = require('path');
+const cors = require('cors');
 
 dotenv.config();
 
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('Connexion à MongoDB réussie !'))
