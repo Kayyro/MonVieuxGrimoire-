@@ -6,6 +6,7 @@ const multer = require('../middleware/multer');
 const sharp = require('../middleware/sharp');
 
 router.get('/', bookCtrl.getAllBooks);
+router.get('/bestrating', bookCtrl.getBestRating);
 router.get('/:id', bookCtrl.getOneBook);
 router.post('/', auth, multer.single('image'), sharp, bookCtrl.createBook);
 router.post('/:id/rating', auth, bookCtrl.rateBook);
