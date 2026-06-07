@@ -2,6 +2,7 @@ const Book = require("../models/Book");
 const fs = require("fs");
 const path = require("path");
 
+// Création d'un livre
 exports.createBook = async (req, res, next) => {
   try {
     const bookObject = JSON.parse(req.body.book);
@@ -19,6 +20,7 @@ exports.createBook = async (req, res, next) => {
   }
 };
 
+// Récupération d'un livre
 exports.getOneBook = async (req, res, next) => {
   try {
     const book = await Book.findOne({ _id: req.params.id });
@@ -29,6 +31,7 @@ exports.getOneBook = async (req, res, next) => {
   }
 };
 
+// Récupération de tous les livres
 exports.getAllBooks = async (req, res, next) => {
   try {
     const books = await Book.find();
@@ -38,6 +41,7 @@ exports.getAllBooks = async (req, res, next) => {
   }
 };
 
+// Modification d'un livre
 exports.updateBook = async (req, res, next) => {
   try {
     const bookObject = req.file
@@ -55,13 +59,18 @@ exports.updateBook = async (req, res, next) => {
       return res.status(401).json({ message: "Non autorisé" });
     }
 
-    await Book.updateOne({ _id: req.params.id }, { ...bookObject, _id: req.params.id });
+    await Book.updateOne(
+      { _id: req.params.id },
+      { ...bookObject, _id: req.params.id },
+      { runValidators: true }
+    );
     res.status(200).json({ message: "Livre modifié !" });
   } catch (error) {
     res.status(400).json({ error });
   }
 };
 
+// Suppression d'un livre
 exports.deleteBook = async (req, res, next) => {
   try {
     const book = await Book.findOne({ _id: req.params.id });
@@ -79,6 +88,7 @@ exports.deleteBook = async (req, res, next) => {
   }
 };
 
+// Notation d'un livre
 exports.rateBook = async (req, res, next) => {
   try {
     const grade = req.body.rating;
@@ -90,7 +100,7 @@ exports.rateBook = async (req, res, next) => {
     const book = await Book.findOne({ _id: req.params.id });
     if (!book) return res.status(404).json({ message: "Livre introuvable" });
 
-    const userIdArray = book.ratings.map(rating => rating.userId);
+    const userIdArray = book.ratings.map((rating) => rating.userId);
     if (userIdArray.includes(req.auth.userId)) {
       return res.status(403).json({ message: "Vous avez déjà noté ce livre" });
     }
@@ -106,12 +116,12 @@ exports.rateBook = async (req, res, next) => {
 
     const updatedBook = await Book.findOne({ _id: req.params.id });
     return res.status(200).json(updatedBook);
-
   } catch (error) {
     return res.status(500).json({ error });
   }
 };
 
+// Top 3 des livres les mieux notés
 exports.getBestRating = async (req, res, next) => {
   try {
     const books = await Book.find().sort({ averageRating: -1 }).limit(3);
