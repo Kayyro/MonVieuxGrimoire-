@@ -16,7 +16,7 @@ exports.createBook = async (req, res, next) => {
     await book.save();
     res.status(201).json({ message: "Livre enregistré !" });
   } catch (error) {
-    res.status(400).json({ error });
+    res.status(400).json({ message: error.message || "Erreur lors de la création du livre" });
   }
 };
 
@@ -27,7 +27,7 @@ exports.getOneBook = async (req, res, next) => {
     if (!book) return res.status(404).json({ message: "Livre introuvable" });
     res.status(200).json(book);
   } catch (error) {
-    res.status(404).json({ error });
+    res.status(404).json({ message: error.message || "Livre introuvable" });
   }
 };
 
@@ -37,7 +37,7 @@ exports.getAllBooks = async (req, res, next) => {
     const books = await Book.find();
     res.status(200).json(books);
   } catch (error) {
-    res.status(400).json({ error });
+    res.status(400).json({ message: error.message || "Erreur lors de la récupération des livres" });
   }
 };
 
@@ -66,7 +66,7 @@ exports.updateBook = async (req, res, next) => {
     );
     res.status(200).json({ message: "Livre modifié !" });
   } catch (error) {
-    res.status(400).json({ error });
+    res.status(400).json({ message: error.message || "Erreur lors de la modification du livre" });
   }
 };
 
@@ -84,7 +84,7 @@ exports.deleteBook = async (req, res, next) => {
     });
     res.status(200).json({ message: "Livre supprimé !" });
   } catch (error) {
-    res.status(400).json({ error });
+    res.status(400).json({ message: error.message || "Erreur lors de la suppression du livre" });
   }
 };
 
@@ -117,7 +117,7 @@ exports.rateBook = async (req, res, next) => {
     const updatedBook = await Book.findOne({ _id: req.params.id });
     return res.status(200).json(updatedBook);
   } catch (error) {
-    return res.status(500).json({ error });
+    return res.status(500).json({ message: error.message || "Erreur lors de la notation du livre" });
   }
 };
 
@@ -127,6 +127,6 @@ exports.getBestRating = async (req, res, next) => {
     const books = await Book.find().sort({ averageRating: -1 }).limit(3);
     res.status(200).json(books);
   } catch (error) {
-    res.status(400).json({ error });
+    res.status(400).json({ message: error.message || "Erreur lors de la récupération du top 3" });
   }
 };

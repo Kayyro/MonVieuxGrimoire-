@@ -12,7 +12,7 @@ exports.signup = async (req, res, next) => {
         await user.save();
         res.status(201).json({ message: 'Utilisateur créé !' });
     } catch (error) {
-        res.status(400).json({ error });
+        res.status(400).json({ message: error.message || 'Erreur lors de la création du compte' });
     }
 };
 
@@ -35,6 +35,6 @@ exports.login = async (req, res, next) => {
             )
         });
     } catch (error) {
-        res.status(500).json({ error });
+        res.status(500).json({ message: error.message || 'Erreur lors de la connexion' });
     }
 };
