@@ -14,4 +14,13 @@ const upload = multer({
     limits: { fileSize: 5 * 1024 * 1024 }
 });
 
-module.exports = upload;
+const handleUpload = (req, res, next) => {
+    upload.single('image')(req, res, (err) => {
+        if (err) {
+            return res.status(400).json({ message: 'Image trop volumineuse (max 5MB)' });
+        }
+        next();
+    });
+};
+
+module.exports = handleUpload;
