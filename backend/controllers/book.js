@@ -8,10 +8,22 @@ exports.createBook = async (req, res, next) => {
     const bookObject = JSON.parse(req.body.book);
     delete bookObject._id;
     delete bookObject._userId;
+
+    const initialGrade = bookObject.ratings?.[0]?.grade || 0;
+    delete bookObject.ratings;
+    delete bookObject.averageRating;
+
     const book = new Book({
       ...bookObject,
       userId: req.auth.userId,
       imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
+      ratings: [
+        {
+          userId: req.auth.userId,
+          grade: initialGrade,
+        },
+      ],
+      averageRating: initialGrade,
     });
     await book.save();
     res.status(201).json({ message: "Livre enregistré !" });
@@ -27,6 +39,9 @@ exports.getOneBook = async (req, res, next) => {
     if (!book) return res.status(404).json({ message: "Livre introuvable" });
     res.status(200).json(book);
   } catch (error) {
+    if (error.kind === 'ObjectId') {
+      return res.status(400).json({ message: "Identifiant de livre invalide" });
+    }
     res.status(404).json({ message: error.message || "Livre introuvable" });
   }
 };
@@ -52,6 +67,8 @@ exports.updateBook = async (req, res, next) => {
       : { ...req.body };
 
     delete bookObject._userId;
+    delete bookObject.ratings;
+    delete bookObject.averageRating;
 
     const book = await Book.findOne({ _id: req.params.id });
     if (!book) return res.status(404).json({ message: "Livre introuvable" });
