@@ -122,17 +122,12 @@ exports.rateBook = async (req, res, next) => {
       return res.status(403).json({ message: "Vous avez déjà noté ce livre" });
     }
 
-    const newRatings = [...book.ratings, { userId: req.auth.userId, grade }];
-    const averageGrade = newRatings.reduce((acc, r) => acc + r.grade, 0) / newRatings.length;
-    const roundedAverage = Math.round(averageGrade * 10) / 10;
+    book.ratings.push({ userId: req.auth.userId, grade });
+    const averageGrade = book.ratings.reduce((acc, r) => acc + r.grade, 0) / book.ratings.length;
+    book.averageRating = Math.round(averageGrade);
 
-    await Book.updateOne(
-      { _id: req.params.id },
-      { ratings: newRatings, averageRating: roundedAverage, _id: req.params.id }
-    );
-
-    const updatedBook = await Book.findOne({ _id: req.params.id });
-    return res.status(200).json(updatedBook);
+    await book.save();
+    return res.status(200).json(book);
   } catch (error) {
     return res.status(500).json({ message: error.message || "Erreur lors de la notation du livre" });
   }
